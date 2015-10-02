@@ -1,29 +1,31 @@
 $(function(){
 
-    var pictureArray = [];
     var availableImageNumber = 0;
 
+    // get full image set
     var getImage = function (i, location) {
         $.ajax({
             type: 'GET',
             dataType: 'json',
             url: '/' + i,
             complete: function(){
-            },success: function(data) {
+            }, success: function(data) {
                 $(".results").append("<img class='pic' data-location='" + location + "' data-id='" + i + "' src=" + data + ">");
             }
         }
     )};
 
     var showPictures = function() {
+        // set initial array of picture numbers to use
         var pictureArray = [0, 1, 2, 3, 4, 5];
         var i = 0;
-
+        // shuffle picture number array before displaying pictures
         shuffle(pictureArray);
         while (i < 5) {
             getImage(pictureArray[i], i);
             i++;
         }
+        // set first available (on-bench) image to the last picture number (which is unused) in array
         availableImageNumber = pictureArray[5];
     };
 
@@ -49,6 +51,7 @@ $(function(){
 
     //click the shuffle pictures button
     $('#shufflePictures').on('click', function() {
+        // clear all pictures before showing new set
         $(".results").empty();
         showPictures();
     });
@@ -56,21 +59,26 @@ $(function(){
     //click new image button
     $(document).on("click", ".pic", function() {
 
-        var currentImageNumber = parseInt(($(this).attr('data-id')));
-
+        // get image number of picture user clicked on
+        var currentImageNumber = parseInt($(this).attr('data-id'));
+        // get document location of that picture
         var currentLocation = $(this);
+        // create new var to make availableImageNumber available to ajax call
         var aIN = availableImageNumber;
+
+        // make ajax call for new (single) image
         $.ajax({
             type: 'GET',
             dataType: 'json',
             url: '/' + availableImageNumber,
             complete: function(){
-            },success: function(data){
+            }, success: function(data) {
                 currentLocation.attr("src", data);
                 currentLocation.attr("data-id", aIN);
-             }
+            }
         });
 
+        // set new available image number to the image number we swapped out
         availableImageNumber = currentImageNumber;
 
     });
